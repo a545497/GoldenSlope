@@ -1,4 +1,9 @@
 📈 GoldenSlope: Zen Trading Strategy & Automation
+
+![Monitor Status](https://github.com/a545497/GoldenSlope/actions/workflows/daily_check.yml/badge.svg)
+[![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 "In the market's noise, find the path of least resistance."
 GoldenSlope 是一個專為「佛系投資人」設計的自動化監控系統，結合了經典的均線交叉理論與斜率動能過濾。
 
