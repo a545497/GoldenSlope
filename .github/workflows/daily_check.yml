@@ -1,0 +1,30 @@
+name: GoldenSlope Daily Monitor
+
+on:
+  schedule:
+    # 這是 Cron 語法，代表週一至週五的 UTC 07:00 (台灣下午 15:00)
+    - cron: '0 7 * * 1-5'
+  workflow_dispatch: # 這一行很重要，讓你可以在網頁上「手動按按鈕」來測試
+
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run Strategy
+        env:
+          # 將 GitHub 的 Secrets 映射給 Python 程式讀取
+          FINMIND_TOKEN: ${{ secrets.FINMIND_TOKEN }}
+          LINE_TOKEN: ${{ secrets.LINE_TOKEN }}
+        run: python GoldenSlope.py
