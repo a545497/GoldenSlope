@@ -38,6 +38,7 @@ GoldenSlope 是一個專為「佛系投資人」設計的自動化監控系統�
 1. 本地環境建置
 # 複製專案
 git clone https://github.com/a545497/GoldenSlope.git
+
 cd GoldenSlope
 
 # 安裝依賴套件
@@ -48,6 +49,7 @@ pip install -r requirements.txt
 在專案根目錄建立 .env 檔案並填入憑證：
 
 FINMIND_TOKEN=your_finmind_api_token
+
 LINE_TOKEN=your_line_notify_token
 
 執行監控
