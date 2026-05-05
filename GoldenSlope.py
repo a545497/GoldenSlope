@@ -43,6 +43,8 @@ def avg_data(data):
     df['MA20_slope'] = df['MA20'] - df['MA20'].shift(1)
     # 計算 5 日平均成交量 (均量)
     df['VMA5'] = df['Trading_Volume'].rolling(5).mean()
+    # 乖離率
+    df['bias_ratio'] = df['close'] / df['MA20']
     return df
 
 
@@ -87,6 +89,14 @@ if __name__ == '__main__':
     trend_following_signal = GSS.strategy_trend_following(data_id, df)
     # 發送分析結果
     msg = []
+    avg_msg = f"項目: {data_id}\n" \
+              f"日均線：{df.iloc[-1]['MA5']}\n" \
+              f"月均線：{df.iloc[-1]['MA20']}\n" \
+              f"斜率：{df.iloc[-1]['MA20_slope']}\n" \
+              f"乖離率：{df.iloc[-1]['bias_ratio']:.2f}\n" \
+              f"成交量：{df.iloc[-1]['Trading_Volume']}\n" \
+              f"今日收盤：{df.iloc[-1]['close']}\n"
+    msg.append(avg_msg)
     msg.append(cross_signal)
     msg.append(mean_reversion_signal)
     msg.append(trend_following_signal)
