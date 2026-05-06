@@ -80,28 +80,35 @@ if __name__ == '__main__':
     start_date_str = start_date.strftime('%Y-%m-%d')
     print('start_date:', start_date_str)
     # 進行資料整理
-    data_id = '2330'
-    data = get_data(finmind_token, data_id, start_date_str, today_str)
-    df = avg_data(data)
-    # 分析數據
-    cross_signal = GSS.golden_cross_signal(data_id, df)
-    mean_reversion_signal = GSS.strategy_mean_reversion(data_id, df)
-    trend_following_signal = GSS.strategy_trend_following(data_id, df)
+    data_id_list = ['2330', '006208', '00878']
+    action_result = []
+    for data_id in data_id_list:
+        data = get_data(finmind_token, data_id, start_date_str, today_str)
+        df = avg_data(data)
+        # 分析數據
+        cross_signal = GSS.golden_cross_signal(data_id, df)
+        mean_reversion_signal = GSS.strategy_mean_reversion(data_id, df)
+        trend_following_signal = GSS.strategy_trend_following(data_id, df)
+        advice_signal = GSS.get_action_advice(data_id, df)
+        # 分析結果
+        msg = []
+        avg_msg = f"**** 項目: {data_id} **** \n" \
+                  f"日均線：{df.iloc[-1]['MA5']}\n" \
+                  f"月均線：{df.iloc[-1]['MA20']}\n" \
+                  f"斜率：{df.iloc[-1]['MA20_slope']}\n" \
+                  f"乖離率：{df.iloc[-1]['bias_ratio']:.2f}\n" \
+                  f"成交量：{df.iloc[-1]['Trading_Volume']}\n" \
+                  f"今日收盤：{df.iloc[-1]['close']}\n"
+        msg.append(avg_msg)
+        msg.append(cross_signal)
+        msg.append(mean_reversion_signal)
+        msg.append(trend_following_signal)
+        msg.append(advice_signal)
+        final_text = "\n".join(msg)
+        action_result.append(final_text)
     # 發送分析結果
-    msg = []
-    avg_msg = f"項目: {data_id}\n" \
-              f"日均線：{df.iloc[-1]['MA5']}\n" \
-              f"月均線：{df.iloc[-1]['MA20']}\n" \
-              f"斜率：{df.iloc[-1]['MA20_slope']}\n" \
-              f"乖離率：{df.iloc[-1]['bias_ratio']:.2f}\n" \
-              f"成交量：{df.iloc[-1]['Trading_Volume']}\n" \
-              f"今日收盤：{df.iloc[-1]['close']}\n"
-    msg.append(avg_msg)
-    msg.append(cross_signal)
-    msg.append(mean_reversion_signal)
-    msg.append(trend_following_signal)
-    final_text = "\n".join(msg)
-    send_line_message(line_token, final_text)
+    send_text = "\n\n".join(action_result)
+    send_line_message(line_token, send_text)
 
 
 
