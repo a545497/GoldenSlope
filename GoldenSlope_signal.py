@@ -80,3 +80,27 @@ def strategy_mean_reversion(data_id, input_df):
     return msg
 
 
+def get_action_advice(data_id, input_df):
+    '''基礎趨勢判斷'''
+    # trend_status = "多頭" if price > ma20 else "空頭"
+    df = input_df.copy()
+    today = df.iloc[-1]
+    bias = today['bias_ratio']
+    price = today['close']
+    ma20 = today['MA20']
+    # 根據乖離率給予存股建議
+    if bias > 10:
+        advice = f"==== 基礎趨勢判斷 ====\n" \
+                 "⚠️ 【警示】正乖離過大！建議獲利了結一半，落袋為安。"
+    elif bias < -7:
+        advice = f"==== 基礎趨勢判斷 ====\n" \
+                 "💰 【加碼】負乖離過大！目前極度超跌，適合增加扣款或手動加碼。"
+    elif price < ma20 and bias < 0:
+        advice = f"==== 基礎趨勢判斷 ====\n" \
+                 "🛡️ 【防禦】跌破月線且修正中，建議暫停手動加碼，維持定期定額。"
+    else:
+        advice = f"==== 基礎趨勢判斷 ====\n" \
+                 "✅ 【持有】趨勢穩健，放心理論複利，不需額外操作。"
+        
+    return advice
+
