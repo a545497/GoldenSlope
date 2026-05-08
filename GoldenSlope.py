@@ -39,13 +39,18 @@ def avg_data(data):
     df['MA5'] = df['close'].rolling(window=5).mean()
     # 2. 計算 20 日均線 (長期趨勢，通常稱為月線)
     df['MA20'] = df['close'].rolling(window=20).mean()
-    # 計算 MA20 的斜率（今天跟昨天的差值）
+    # 季均線
+    df['MA60'] = df['close'].rolling(window=60).mean()
+    # 年線
+    df['MA200'] = df['close'].rolling(window=200).mean()
+    # 計算斜率（今天跟昨天的差值）
+    df['MA5_slope'] = df['MA5'] - df['MA5'].shift(1)
     df['MA20_slope'] = df['MA20'] - df['MA20'].shift(1)
     # 計算 5 日平均成交量 (均量)
     df['VMA5'] = df['Trading_Volume'].rolling(5).mean()
     # 乖離率
     df['bias_ratio'] = df['close'] / df['MA20']
-    return df
+    return df.dropna()
 
 
 def send_line_message(token, msg):
@@ -76,7 +81,7 @@ if __name__ == '__main__':
     today = datetime.today()
     today_str = today.strftime('%Y-%m-%d')
     print('today:', today_str)
-    start_date = today + timedelta(days = -60)
+    start_date = today + timedelta(days = -400)
     start_date_str = start_date.strftime('%Y-%m-%d')
     print('start_date:', start_date_str)
     # 進行資料整理
@@ -93,15 +98,17 @@ if __name__ == '__main__':
         # 分析結果
         msg = []
         avg_msg = f"**** 項目: {data_id} **** \n" \
-                  f"日均線：{df.iloc[-1]['MA5']}\n" \
-                  f"月均線：{df.iloc[-1]['MA20']}\n" \
-                  f"斜率：{df.iloc[-1]['MA20_slope']}\n" \
+                  f"日均線：{df.iloc[-1]['MA5']:.2f}\n" \
+                  f"月均線：{df.iloc[-1]['MA20']:.2f}\n" \
+                  f"季均線：{df.iloc[-1]['MA60']:.2f}\n" \
+                  f"年均線：{df.iloc[-1]['MA200']:.2f}\n" \
+                  f"斜率：{df.iloc[-1]['MA20_slope']:.2f}\n" \
                   f"乖離率：{df.iloc[-1]['bias_ratio']:.2f}\n" \
                   f"成交量：{df.iloc[-1]['Trading_Volume']}\n" \
                   f"今日收盤：{df.iloc[-1]['close']}\n"
         msg.append(avg_msg)
         msg.append(cross_signal)
-        msg.append(mean_reversion_signal)
+        # msg.append(mean_reversion_signal)
         msg.append(trend_following_signal)
         msg.append(advice_signal)
         final_text = "\n".join(msg)

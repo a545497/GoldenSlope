@@ -13,9 +13,9 @@ def golden_cross_signal(data_id, input_df):
     df['greater'] = df['MA5'] > df['MA20']
     # 判斷「交叉點」：今天的大於(True) 且 昨天的大於(False)
     # .shift(1) 的意思是把數據「往下移一格」，也就是抓取昨天的狀態
-    df['golden_cross'] = (df['greater'] == True) & (df['greater'].shift(1) == False)
+    df['golden_cross'] = (df['greater'] == True) & (df['greater'].shift(1) == False) & (df['close'] > df['MA200'])
     # 1. 死亡交叉
-    df['less'] = df['MA5'] < df['MA20']
+    df['less'] = df['MA5'] < df['MA60']
     # 2. 判斷「死亡交叉點」：今天的小於(True) 且 昨天的小於(False)
     # 也就是昨天 MA5 >= MA20，今天卻變成了 MA5 < MA20
     df['death_cross'] = (df['less'] == True) & (df['less'].shift(1) == False)
@@ -31,8 +31,7 @@ def golden_cross_signal(data_id, input_df):
               f"💡 動作：晚上設定預約單，明日開盤買入。\n"
     else:
         msg = f"==== 交叉量化分析 ====\n" \
-              f"[不動作] {data_id}\n" \
-              f"成交量：{today['Trading_Volume']}\n"
+              f"[不動作] {data_id}\n" 
     return msg
 
 
@@ -40,8 +39,8 @@ def strategy_trend_following(data_id, input_df):
     '''順勢追隨分析'''
     df = input_df.copy()
     # 1. 定義買入與賣出訊號
-    df['entry_sig'] = (df['close'] > df['MA20']) & (df['bias_ratio'] < 1.03)
-    df['exit_sig'] = (df['close'] < df['MA20'])
+    df['entry_sig'] = (df['close'] > df['MA20']) & (df['bias_ratio'] < 1.03) & (df['MA5_slope'] > 0) & (df['close'] > df['MA200'])
+    df['exit_sig'] = (df['close'] < df['MA60'])
     today = df.iloc[-1]
     msg = 'nothing to do'
     if today['exit_sig']:
