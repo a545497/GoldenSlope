@@ -109,8 +109,10 @@ if __name__ == '__main__':
         msg.append(avg_msg)
         msg.append(cross_signal)
         # msg.append(mean_reversion_signal)
-        msg.append(trend_following_signal)
-        msg.append(advice_signal)
+        if data_id == '2330':
+            msg.append(trend_following_signal)
+        else:
+            msg.append(advice_signal)
         final_text = "\n".join(msg)
         action_result.append(final_text)
     # 發送分析結果
