@@ -103,3 +103,73 @@ def get_action_advice(data_id, input_df):
         
     return advice
 
+
+def MACDMomentumHybridStrategy(stock_data_list, position_list):
+    '''買入訊號抓 MACD，賣出抓動量'''
+    trailing_perc = 0.08 # 保險值
+    max_position = 3 
+    # 賣出訊號
+    new_position_list = []
+    sell_list = []
+    for position_data in position_list:
+        for stock_data in stock_data_list:
+            if stock_data['name'] != position_data['name']:
+                continue
+            df = stock_data['data']
+            if df is None or df.empty:
+                break
+            today = df.iloc[-1]
+            if today['close'] > position_data['highest_price']:
+                position_data['highest_price'] = today['close']
+            # 計算動態停損價
+            stop_price = position_data['highest_price'] * (1.0 - trailing_perc)
+            # 跌破防線出場
+            if today['close'] < stop_price:
+                sell_list.append({
+                    'name': stock_data['name'],
+                    'highest_price': position_data['highest_price'],
+                    'close': today['close']
+                })
+            else:
+                new_position_list.append(position_data)
+            # 處理完跳出
+            break
+    # 買入訊號
+    candidates = []
+    for stock_data in stock_data_list:
+        # 如果已買入 pass
+        pass_flag = False
+        for position_data in position_list:
+            if stock_data['name'] == position_data['name']:
+                pass_flag = True
+        if pass_flag:
+            continue
+        # 檢查數據
+        df = stock_data['data']
+        if df is None or df.empty:
+            continue
+        today = df.iloc[-1]
+        is_uptrend = today['close'] > today['long_trend']
+        macd_gold_cross = today['MACD_hist'] > 0
+        if is_uptrend and macd_gold_cross:
+            candidates.append({
+                'name': stock_data['name'],
+                'highest_price': today['close'],
+                'close': today['close'],
+                'roc': today['roc']
+            })
+    candidates.sort(key=lambda x: x['roc'], reverse=True)
+    open_slots = max_position - len(position_list)
+    buy_list = candidates[:open_slots]
+    if open_slots > 0:
+        new_position_list.extend(candidates[:open_slots])
+        
+    # 回傳所有資料
+    return sell_list, buy_list, new_position_list
+    
+    
+
+
+
+
+
