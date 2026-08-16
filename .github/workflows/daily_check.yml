@@ -6,6 +6,10 @@ on:
     - cron: '33 7 * * 1-5'
   workflow_dispatch: # 這一行很重要，讓你可以在網頁上「手動按按鈕」來測試
 
+# 1. 賦予 GITHUB_TOKEN 寫入（Push）程式碼的權限
+permissions:
+  contents: write
+  
 jobs:
   build-and-run:
     runs-on: ubuntu-latest
@@ -28,3 +32,13 @@ jobs:
           FINMIND_TOKEN: ${{ secrets.FINMIND_TOKEN }}
           LINE_TOKEN: ${{ secrets.LINE_TOKEN }}
         run: python GoldenSlope.py
+        # 2. 自動 Commit 並 Push 更新後的 positions.json
+      - name: Commit and Push Updated Positions
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add positions.json
+          # 檢查有無改動，有改動才 Commit，避免無變更時導致流程報錯
+          git diff --staged --quiet || (git commit -m "auto: update positions.json [skip ci]" && git push)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
