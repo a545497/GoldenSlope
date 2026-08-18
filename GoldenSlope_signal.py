@@ -131,6 +131,7 @@ def MACDMomentumHybridStrategy(stock_data_list, position_list):
                     'close': today['close']
                 })
             else:
+                position_data['close'] = today['close']
                 new_position_list.append(position_data)
             # 處理完跳出
             break
