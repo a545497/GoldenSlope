@@ -3,19 +3,19 @@
     {
       "name": "3653",
       "highest_price": 5990.0,
-      "close": 5885.0,
+      "close": 5770.0,
       "roc": 0.66875
     },
     {
       "name": "3008",
-      "highest_price": 7650.0,
-      "close": 7580.0,
+      "highest_price": 7810.0,
+      "close": 7810.0,
       "roc": 0.3321256038647342
     },
     {
       "name": "3443",
       "highest_price": 5995.0,
-      "close": 5995.0,
+      "close": 5895.0,
       "roc": 0.4463208685162847
     }
   ]
