@@ -2,20 +2,20 @@
   "position_list": [
     {
       "name": "3443",
-      "highest_price": 6400.0,
-      "close": 6170.0,
+      "highest_price": 6500.0,
+      "close": 6500.0,
       "roc": 0.4463208685162847
     },
     {
       "name": "2883",
-      "highest_price": 39.15,
-      "close": 39.15,
+      "highest_price": 39.65,
+      "close": 39.65,
       "roc": 0.287828947368421
     },
     {
       "name": "2303",
-      "highest_price": 142.0,
-      "close": 142.0,
+      "highest_price": 147.5,
+      "close": 147.5,
       "roc": 0.22943722943722933
     }
   ]
