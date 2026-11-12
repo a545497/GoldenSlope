@@ -14,9 +14,12 @@ import GoldenSlope_signal as GSS
 
 def get_data(token, data_id, start_date, end_date):
     '''交易資料'''
+    dataset = 'TaiwanStockPrice'
+    if data_id == 'USD':
+        dataset = 'TaiwanExchangeRate'
     data_url = 'https://api.finmindtrade.com/api/v4/data'
     data_params = {
-        "dataset": "TaiwanStockPrice",
+        "dataset": dataset,
         "data_id": data_id,
         "start_date": start_date,
         "end_date": end_date,
@@ -54,6 +57,24 @@ def avg_data(data):
     df['MACD'] = df['EMA12'] - df['EMA26']
     df['MACD_signal'] = df['MACD'].ewm(span=9, adjust=False).mean()
     df['MACD_hist'] = df['MACD'] - df['MACD_signal']
+    return df.dropna()
+
+def avg_usd_data(data):
+    '''美金資料'''
+    if not data or "data" not in data or not data["data"]:
+        print('none data')
+        return None
+    df = pd.DataFrame(data["data"])
+    # 2. 計算 20 日均線與乖離率
+    df['MA20'] = df['spot_sell'].rolling(window=20).mean()
+    df['STD20'] = df['spot_sell'].rolling(window=20).std()
+    df['Pct_from_MA'] = (df['spot_sell'] - df['MA20']) / df['MA20']
+    df['Z-Score'] = (df['spot_sell'] - df['MA20']) / df['STD20']
+    # 3. 設定買進條件（例如：當價格低於 20MA 時就買進）
+    # 為了避免每天都買，我們可以加上「每隔 30 天」或「跌幅超過 1%」的條件
+    df['Buy_Signal'] = df['Pct_from_MA'] < -0.01
+    df['Z_Signal'] = df['Z-Score'] < -1
+    df = df.dropna()
     return df.dropna()
 
 
@@ -164,6 +185,19 @@ if __name__ == '__main__':
                         f"最高價: {position_item['highest_price']} \n" \
                         f"收盤價: {position_item['close']} \n"
     action_result.append(position_result)
+    # 分析美金
+    usd_data = get_data(finmind_token, 'USD', start_date_str, today_str)
+    usd_df = avg_usd_data(usd_data)
+    usd_today = usd_df.iloc[-1]
+    usd_result = '====== 美金分析 ====== \n' \
+                f"美金賣出: {usd_today['spot_buy']} \n" \
+                f"標準差: {usd_today['Z-Score'].round(2)} \n" \
+                f"乖離率: {usd_today['Pct_from_MA'].round(2)} \n"
+    if usd_today['Z_Signal']:
+        usd_result += '分析結果: 可以考慮買入 \n'
+    else:
+        usd_result += '分析結果: 持續觀望 \n'
+    action_result.append(usd_result)
     # 發送分析結果
     send_text = "\n\n".join(action_result)
     send_line_message(line_token, send_text)
